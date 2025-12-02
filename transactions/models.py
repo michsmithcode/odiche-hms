@@ -7,6 +7,24 @@
 # #from .utils import generate_invoice_number
 
 
+
+# class Billing(models.Model):
+#     visit = models.OneToOneField(PatientVisit, on_delete=models.CASCADE, related_name="billing")
+#     consultation_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     medication_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     lab_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     total_bill = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+#     is_paid = models.BooleanField(default=False)
+
+#     def calculate_total(self):
+#         self.total_bill = self.consultation_fee + self.medication_fee + self.lab_fee
+#         self.save()
+
+#     def __str__(self):
+#         return f"Billing for Visit #{self.visit.id}"
+
+
+
 # class Transaction(models.Model):
 #     PAYMENT_METHODS = (
 #         ('cash', 'Cash'),

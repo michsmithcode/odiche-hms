@@ -20,7 +20,6 @@ SPECIALIZATION_CHOICES = [
 
 class DoctorProfile(EmployeeIDMixin, models.Model):
     prefix = "DR"
-    #employee_id = models.CharField(max_length=50, unique=True, editable=False, null=True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True, on_delete=models.CASCADE, related_name="doctor_profile" )
     specialization = models.CharField(max_length=100, choices=SPECIALIZATION_CHOICES)
     license_number = models.CharField(max_length=100, unique=True, blank=True, null=True)
@@ -35,20 +34,14 @@ class DoctorProfile(EmployeeIDMixin, models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     
-    
-    # def save(self, *args, **kwargs):
-    #     if not self.employee_id:
-    #         self.employee_id = generate_employee_id("DR", self.user.id)
-    #         super().save(*args, **kwargs)
-    
-    
+    #generated names from the account apps
     def __str__(self):
         user = self.user
         full_name = f"Dr. {user.first_name} {user.surname}".strip()
         return f"{full_name} ({user.email})  ({self.specialization})"
 
 
-
+#doctors License Verification and approval
 class ValidLicense(models.Model):
     license_number = models.CharField(max_length=100, unique=True)
     holder_name = models.CharField(max_length=255, blank=True, null=True)

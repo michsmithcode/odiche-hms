@@ -15,10 +15,19 @@ class NurseProfile(EmployeeIDMixin, models.Model):
     
     address = models.TextField(blank=True, null=True)
     qualifications = models.TextField(blank=True, null=True)
-    shift = models.OneToOneField(Shift, max_length=50, blank=True, null=True, on_delete=models.SET_NULL)
+    shift = models.ForeignKey(Shift, max_length=50,  on_delete=models.SET_NULL, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    @property
+    def is_profile_complete(self):
+        required_fields = [
+            self.address,
+            self.qualifications,
+            self.phone_number,
+        ]
+        return all(required_fields)
     
     
     

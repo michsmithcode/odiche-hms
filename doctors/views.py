@@ -7,36 +7,7 @@ from .serializers import DoctorProfileSerializer
 from rest_framework.permissions import IsAdminUser
 from django.views.decorators.csrf import csrf_exempt
 
-
-#===================================
-# from rest_framework.decorators import api_view, permission_classes
-# from rest_framework.response import Response
-
-
-# #doctors permission using permission system code this no longer needed
-# @api_view(["GET"])
-# @permission_classes([HasCustomPermission])
-# def prescribe_medicine(request):
-#     request.required_permission = "can_prescribe_medicine"
-#     user = request.user
-#     if user.role != "doctor":
-#         return Response({"error": "Only doctors can prescribe medicines"}, status=403)
-#     return Response({"message": f"Dr. {user.email}, you can prescribe medicine!"})
-
-
-#====================use this to grant permission for the doctor access control. This replaces the old method above======
-from permissions.decorators import permission_required
-
-
-
-#Used for testing API
-# @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-# def test_auth(request):
-#     return Response(
-#         {"user": request.user.email, "role": getattr(request.user, "role", None)}
-#     )
-from rest_framework.permissions import AllowAny
+#from rest_framework.permissions import AllowAny
 
 # #Used for testing
 # @api_view(["GET"])
@@ -46,7 +17,7 @@ from rest_framework.permissions import AllowAny
     
 
 
-#This view verifies the doctors unique license
+#This view verifies the doctor's unique license
 from .serializers import LicenseVerificationSerializer
 
 @api_view(["POST"])
@@ -85,6 +56,9 @@ def verify_license(request):
     }, status=status.HTTP_200_OK)
 
 
+#========use this to grant permission for the doctor access control. This replaces the old method above======
+from permissions.decorators import permission_required
+
 # Doctor
 @csrf_exempt
 @api_view(["POST"])
@@ -109,7 +83,7 @@ def prescribe_drugs(request):
 @permission_classes([IsAuthenticated])
 def get_doctor_profile(request):
     """
-    GET /doctor/profile/ - Retrieve logged-in doctor's profile
+    Retrieves logged-in doctor's profile
     """
     try:
         doctor = request.user.doctor_profile
@@ -124,7 +98,6 @@ def get_doctor_profile(request):
     except DoctorProfile.DoesNotExist:
         return Response({"error": "Doctor profile not found"}, status=status.HTTP_404_NOT_FOUND)
 
-# main update views
 
 
 
@@ -146,7 +119,7 @@ def update_doctor_profile(request):
     serializer = DoctorProfileSerializer(
         doctor,
         data=request.data,
-        partial=True,  # PATCH support
+        partial=True,  # This gives a PATCH METHOD support
         context={"doctor": doctor}
     )
 
@@ -157,25 +130,6 @@ def update_doctor_profile(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @csrf_exempt
-# @api_view(["PATCH"])
-# @permission_classes([IsAuthenticated])
-# def update_doctor_profile(request):
-#     """
-#     PATCH /doctor/profile/ - Update logged-in doctor's profile
-#     """
-#     try:
-#         doctor = DoctorProfile.objects.get(user=request.user)
-#     except DoctorProfile.DoesNotExist:
-#         return Response({"error": "Doctor profile not found"}, status=status.HTTP_404_NOT_FOUND)
-
-#     serializer = DoctorProfileSerializer(doctor, data=request.data, partial=True)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 @csrf_exempt
@@ -183,7 +137,7 @@ def update_doctor_profile(request):
 @permission_classes([IsAuthenticated])
 def delete_doctor_profile(request):
     """
-    DELETE /doctor/profile/ - Delete logged-in doctor's profile
+    Delete logged-in doctor's profile
     """
     try:
         doctor = DoctorProfile.objects.get(user=request.user)
@@ -200,7 +154,7 @@ def delete_doctor_profile(request):
 @permission_classes([IsAdminUser])
 def admin_list_doctors(request):
     """
-    GET /admin/doctors/ - List all doctor profiles (Admin only)
+      List all doctor profiles by admin
     """
     doctors = DoctorProfile.objects.all().select_related("user")
     serializer = DoctorProfileSerializer(doctors, many=True)
@@ -212,7 +166,7 @@ def admin_list_doctors(request):
 @permission_classes([IsAdminUser])
 def admin_get_doctor(request, doctor_id):
     """
-    GET /admin/doctors/<id>/ - Retrieve specific doctor profile (Admin only)
+     Retrieve specific doctor profile by admin
     """
     try:
         doctor = DoctorProfile.objects.get(id=doctor_id)
@@ -221,12 +175,12 @@ def admin_get_doctor(request, doctor_id):
     serializer = DoctorProfileSerializer(doctor)
     return Response(serializer.data)
 
-
+@csrf_exempt
 @api_view(["PATCH"])
 @permission_classes([IsAdminUser])
 def admin_update_doctor(request, doctor_id):
     """
-    PATCH /admin/doctors/<id>/update/ - Update doctor profile (Admin only)
+    Update doctor profile by admin
     """
     try:
         doctor = DoctorProfile.objects.get(id=doctor_id)
@@ -240,11 +194,12 @@ def admin_update_doctor(request, doctor_id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@csrf_exempt
 @api_view(["DELETE"])
 @permission_classes([IsAdminUser])
 def admin_delete_doctor(request, doctor_id):
     """
-    DELETE /admin/doctors/<id>/delete/ - Delete doctor profile (Admin only)
+    Delete doctor profile by admin
     """
     try:
         doctor = DoctorProfile.objects.get(id=doctor_id)
@@ -252,74 +207,4 @@ def admin_delete_doctor(request, doctor_id):
         return Response({"message": "Doctor deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     except DoctorProfile.DoesNotExist:
         return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-#==================END=======================================
-
-
-
-
-
-
-# from rest_framework.decorators import api_view, permission_classes
-# from rest_framework.response import Response
-# from rest_framework import status, permissions
-# from django.contrib.auth import get_user_model
-
-# User = get_user_model()
-
-# @api_view(["POST"])
-# #@permission_classes([permissions.IsAdminUser])  # only admin can invite a user
-# def invite_doctor(request):
-#     email = request.data.get("email")
-#     first_name = request.data.get("first_name")
-#     last_name = request.data.get("last_name")
-
-#     if not email:
-#         return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-#     if User.objects.filter(email=email).exists():
-#         return Response({"error": "User with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
-
-#     user = User.objects.create_user(
-#         email=email,
-#         first_name=first_name or "",
-#         surname="",
-#         last_name=last_name or "",
-#         role="doctor",
-#         password="default12345"  
-#     )
-
-#     return Response(
-#         {"message": f"Doctor {user.email} invited successfully"},
-#         status=status.HTTP_201_CREATED
-#     )
-
-
-
-# from django.shortcuts import render
-
-# # doctor/views.py
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status
-# from accounts.models import CustomUser
-
-# class DoctorInviteView(APIView):
-#     def post(self, request):
-#         email = request.data.get("email")
-#         first_name = request.data.get("first_name")
-#         last_name = request.data.get("last_name")
-
-#         user = CustomUser.objects.create_user(
-#             email=email,
-#             first_name=first_name,
-#             surname="",
-#             last_name=last_name,
-#             role="doctor",
-#             password="default12345"  # later you replace this with invitation link/OTP
-#         )
-#         return Response({"message": f"Doctor {user.email} invited"}, status=status.HTTP_201_CREATED)
-
 

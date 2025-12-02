@@ -22,14 +22,23 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Count, Sum
-from doctor.models import Doctor
-from nurse.models import Nurse
-from pharmacist.models import Pharmacist
-from pharmacy_cashier.models import PharmacyCashier
-from patient.models import Patient
+from doctors.models import DoctorProfile
+from nurses.models import NurseProfile
+from pharmarcist.models import PharmacistProfile
+from pharmacycashiers.models import PharmacyCashierProfile
+from patients.models import PatientProfile
 from appointment.models import Appointment  # Uncomment if available
-from payments.models import Payment  # Uncomment if available
+from transactions.models import payment  # Uncomment if available
 from permissions.decorators import permission_required
+#======================Profile=======
+# from nurses.models import NurseProfile
+# from accountant.models import AccountantProfile
+# from lab_technician.models import LabTechnicianProfile
+# from pharmacycashiers.models import PharmacyCashierProfile
+# from pharmarcist.models import PharmacistProfile
+# from receptionists.models import ReceptionistProfile
+# from hospitaladmin.models import HospitalAdminProfile
+from django.shortcuts import get_object_or_404
 
 
 #admin access control
@@ -266,6 +275,86 @@ def admin_patient_detail(request, patient_id):
     elif request.method == "DELETE":
         patient.delete()
         return Response({"message": "Patient deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+#================================Profile completion using Celery=============
+# @api_view(["POST"])
+# @permission_classes([IsAdminUser])
+# def verify_nurse(request, role, user_id):
+#     user = get_object_or_404(user.profile, id=user_id)
+
+#     if not user.is_profile_complete():
+#         return Response(
+#             {"error": "Profile is not complete. Cannot verify."},
+#             status=400
+#         )
+
+#     user.is_verified = True
+#     user.save()
+
+#     # SEND EMAIL NOTIFICATION VIA CELERY
+#     from accounts.tasks import send_user_otp_email
+#     subject = "Your Nurse Account Has Been Verified"
+#     message = (
+#         f"Hello {user.first_name},\n\n"
+#         "Your account has been verified by the hospital administrator.\n"
+#         "You now have full access to the system.\n\n"
+#         "Thank you."
+#     )
+#     send_user_otp_email.delay(subject, message, [user.email])
+
+#     return Response(
+#         {"message": "Nurse verified successfully"},
+#         status=200
+#     )
+
+
+#Profile completion verification for all roles
+# @api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+# def verify_role(request, role, user_id):
+
+#     if not request.user.is_staff:
+#         return Response({"error": "Admin only"}, status=403)
+
+#     ROLE_MAP = {
+#         "nurse": NurseProfile,
+#         "pharmacist": PharmacistProfile,
+#         "cashier": PharmacyCashierProfile,
+#         "labtech": LabTechnicianProfile,
+#         "receptionist": ReceptionistProfile,
+#         "accountant": AccountantProfile,
+#         "hospitaladmin": HospitalAdminProfile,
+#     }
+
+#     if role not in ROLE_MAP:
+#         return Response({"error": "Invalid role"}, status=400)
+
+#     ModelClass = ROLE_MAP[role]
+#     profile = get_object_or_404(ModelClass, user__id=user_id)
+
+#     #  CHECK PROFILE COMPLETENESS
+#     if not profile.is_profile_complete:
+#         return Response(
+#             {
+#                 "error": "Profile incomplete",
+#                 "detail": "User must fill all required fields before verification."
+#             },
+#             status=400
+#         )
+
+#     # VERIFIED BY ADMIN
+#     profile.is_verified = True
+#     profile.save()
+
+#     return Response({"message": f"{role.capitalize()} verified successfully"}, status=200)
+
+
+
+
 
 
 

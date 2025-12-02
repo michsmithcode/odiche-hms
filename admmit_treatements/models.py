@@ -2,7 +2,7 @@ from django.db import models
 from patients.models import PatientProfile
 from doctors.models import DoctorProfile
 from ward.models import Ward
-
+from django.conf import settings
 
 class Admission(models.Model):
     STATUS_CHOICES = [
@@ -11,7 +11,7 @@ class Admission(models.Model):
         ('transferred', 'TRANSFERRED'),
     ]
 
-    patient = models.ForeignKey(PatientProfile, on_delete=models.SET_NULL, related_name='admissions')
+    patient = models.ForeignKey(PatientProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='admissions')
     admitted_on = models.DateTimeField(auto_now_add=True)
     expected_discharge_date = models.DateField(blank=True, null=True)
     discharged_on = models.DateTimeField(blank=True, null=True)
@@ -44,7 +44,7 @@ class Treatment(models.Model):
     )
     date = models.DateTimeField(auto_now_add=True)
     doctor = models.ForeignKey(
-        'auth.User', #recheck
+        settings.AUTH_USER_MODEL, #recheck
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -62,3 +62,5 @@ class Treatment(models.Model):
 
     class Meta:
         ordering = ['-date']
+        
+        

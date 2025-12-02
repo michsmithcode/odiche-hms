@@ -1,5 +1,4 @@
 from django.urls import path
-#from .views import UserInviteView
 from .import views
 from utilsapp.views import resend_otp_view
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -16,27 +15,3 @@ urlpatterns = [
 
 ]
 
-
-
-
-#from .views import custom_token_obtain_pair, custom_token_refresh
-#from django.urls import path
-# from rest_framework_simplejwt.views import (
-#     TokenObtainPairView,
-#     TokenRefreshView,
-# )
-
-
-
-
-
- #from django.urls import path
-# from .views import custom_token_obtain_pair, custom_token_refresh
-
-#  urlpatterns = [
-      #path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-      #path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
-#     path("token/", custom_token_obtain_pair, name="token_obtain_pair"),
-#     path("token/refresh/", custom_token_refresh, name="token_refresh"),
-# ]

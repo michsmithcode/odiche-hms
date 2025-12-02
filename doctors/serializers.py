@@ -31,11 +31,12 @@ class LicenseVerificationSerializer(serializers.Serializer):
     license_number = serializers.CharField()
 
     def validate_license_number(self, value):
+        # Valid, , unique, Not empty, and using sample format like MDCN
         pattern = r"^(MDCN|MDC)(/[A-Z]+)?/\d{3,6}$"
 
         if not re.match(pattern, value):
             raise serializers.ValidationError(
-                "Invalid MDCN license format. Example: MDCN/RN/12345"
+                "Invalid MDCN license number format. Example: MDCN/RN/12345"
             )
 
         # Check if license exists in your internal list
@@ -44,7 +45,7 @@ class LicenseVerificationSerializer(serializers.Serializer):
                 "This license number is not found in the official registry."
             )
 
-        # Check if another doctor already used it
+        # Check if another doctor already used same license 
         if DoctorProfile.objects.filter(license_number=value).exists():
             raise serializers.ValidationError(
                 "This license number is already registered for another doctor."
@@ -52,55 +53,3 @@ class LicenseVerificationSerializer(serializers.Serializer):
 
         return value
 
-
-
-
-# import re
-
-# class DoctorProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Doctor
-#         fields = [
-#             "specialization",
-#             "license_number",
-#             "years_of_experience",
-#             "qualifications",
-#             "bio",
-#             "shift",
-#             "available_time_from",
-#             "available_time_to",
-#         ]
-        extra_kwargs = {
-            "license_number": {"required": True},
-        }
-
-#     def validate_license_number(self, value):
-#         """
-#         Validate:
-#         - Not empty
-#         - Format is valid (e.g., MDCN format)
-#         - Unique license number
-#         """
-#         if not value:
-#             raise serializers.ValidationError("License number is required.")
-
-#         # Example Nigerian medical license validation (you can edit as needed)
-#         pattern = r"^[A-Za-z0-9\-\/]+$"
-#         if not re.match(pattern, value):
-#             raise serializers.ValidationError(
-#                 "Invalid license number format. Only letters, numbers, '-' or '/' are allowed."
-#             )
-
-#         # Ensure license is unique
-#         # During update: exclude self instance
-#         doctor = self.context.get("doctor")
-
-#         existing = Doctor.objects.filter(license_number=value)
-
-#         if doctor:
-#             existing = existing.exclude(user=doctor.user)
-
-#         if existing.exists():
-#             raise serializers.ValidationError("This license number is already registered.")
-
-#         return value
