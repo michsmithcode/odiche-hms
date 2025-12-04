@@ -19,7 +19,7 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         extra_kwargs = {
     "license_number": {"required": True},
 }
-        read_only_fields = ["created_at"]
+        read_only_fields = ["created_at", "updated_at"]
 
 
 

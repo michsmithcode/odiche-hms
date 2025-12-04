@@ -9,9 +9,7 @@ def generate_reg_no():
     from django.utils import timezone
     year = timezone.now().year
     random_code = str(uuid.uuid4().int)[:5]
-    return f"REG-{year}-{random_code}"
-
-
+    return f"REG/{year}/{random_code}"
 
 
 
@@ -25,17 +23,9 @@ def generate_card_number():
     return f"PT{new_card:04d}"
 
 
-
+# A folder number is like a shelve in the Hospital where each patient records are kept
 def generate_file_folder_no():
     """
     Generates folder number: FOLDER-000123
     """
     return f"FOLDER-{str(uuid.uuid4().int)[:6]}"
-
-
-
-# def generate_folder_no():
-#     last_patient = PatientProfile.objects.order_by("id").last()
-#     next_id = (last_patient.id + 1) if last_patient else 1
-#     return f"HF-{str(next_id).zfill(6)}"
-

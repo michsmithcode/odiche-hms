@@ -29,6 +29,7 @@ def create_role_profile(sender, instance, created, **kwargs):
 
     role_name = instance.role  # role stored as string in CustomUser
 
+    # if role_name == "patient":
     
     # Assing user's HospitalRole
     
@@ -54,9 +55,6 @@ def create_role_profile(sender, instance, created, **kwargs):
         case "nurse":
             NurseProfile.objects.get_or_create(user=instance)
 
-        case "patient":
-            PatientProfile.objects.get_or_create(user=instance)
-
         case "pharmacist":
             PharmacistProfile.objects.get_or_create(user=instance)
 
@@ -81,3 +79,8 @@ def create_role_profile(sender, instance, created, **kwargs):
         case _:
             # Unknown role, skip silently
             pass
+        
+        
+    #patient account created already handled by the receptionist
+        # case "patient":
+        #     PatientProfile.objects.get_or_create(user=instance)

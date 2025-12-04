@@ -22,7 +22,7 @@ urlpatterns = [
     path('api/accounts/',  include("accounts.urls")),
     path('api/doctors/', include("doctors.urls")),
     path('api/nurses/', include("nurses.urls")),
-    # path('api/patients/', include("patients.urls")),
+    path('api/patients/', include("patients.urls")),
     # path('api/pharmarcist/', include("pharmarcist.urls")),
     # path('api/pharmacycashiers/', include("pharmacycashiers.urls")),
     # path('api/hospitaladmin/', include("hospitaladmin.urls")),

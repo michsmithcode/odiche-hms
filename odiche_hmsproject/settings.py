@@ -291,3 +291,5 @@ SIMPLE_JWT = {
 # CustomUser.objects.all().delete()
 # To delete a specific user use this
 #CustomUser.objects.filter(email="example@email.com").delete()
+
+FRONTEND_URL = "http://localhost:3000"

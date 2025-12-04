@@ -48,8 +48,8 @@ class RolePermission(models.Model):
    
 
 
-# Optional: extend User model by linking to HospitalRole (if your user model doesn't already have a role field)
-# If you already have user.role as a CharField, adapt accordingly. This helper field is non-required.
+# This UserProfile is Optional
+
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     role = models.ForeignKey(HospitalRole, on_delete=models.SET_NULL, null=True, blank=True)

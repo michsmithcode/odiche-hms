@@ -1,8 +1,9 @@
 from django.contrib import admin
 from .models import PatientProfile
 
+admin.site.register(PatientProfile)
 
-admin.register(PatientProfile)
+
 class PatientProfileAdmin(admin.ModelAdmin):
     list_display = [
         "first_name", "last_name", "reg_no", "file_folder_no",
