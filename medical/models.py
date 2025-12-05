@@ -6,7 +6,7 @@ from doctors.models import DoctorProfile
 
 
 class MedicalHistory(models.Model):
-    patient = models.OneToOneField(PatientProfile, on_delete=models.CASCADE, related_name="medical_history")
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name="medical_history")
     allergies = models.TextField(blank=True, null=True)
     chronic_conditions = models.TextField(blank=True, null=True)
     past_surgeries = models.TextField(blank=True, null=True)
@@ -14,9 +14,11 @@ class MedicalHistory(models.Model):
     family_history = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
-        return f"Medical History for {self.patient.first_name} {self.patient.last_name}"
+        u = self.patient.user
+        full_name = f"{u.first_name} {u.last_name}".strip()
+        return f"Medical History for {full_name} ({self.patient.reg_no})"
     
     
     
@@ -29,7 +31,7 @@ class PatientVital(models.Model):
     weight = models.DecimalField(max_digits=5, decimal_places=2)
     height = models.DecimalField(max_digits=5, decimal_places=2)
     recorded_at = models.DateTimeField(auto_now_add=True)
-    recorded_by = models.ForeignKey('nurses.Nurse', on_delete=models.SET_NULL, null=True)
+    recorded_by = models.ForeignKey('nurses.NurseProfile', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

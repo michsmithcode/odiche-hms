@@ -12,6 +12,58 @@ from nurses.models import NurseProfile
 
 
 
+#auto assign
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import AppointmentSerializer
+from .models import Appointment
+from nurses.utils import get_available_nurse_for_datetime
+from doctors.utils import assign_doctor_by_specialization
+from notifications.utils import send_appointment_notification
+
+
+@api_view(["POST"])
+@permission_classes([])
+def create_appointment(request):
+    serializer = AppointmentSerializer(data=request.data)
+
+    if serializer.is_valid():
+
+        appointment_date = serializer.validated_data["appointment_date"]
+        specialization = serializer.validated_data.get("specialization")
+
+        # Auto-assign nurse
+        nurse = get_available_nurse_for_datetime(appointment_date)
+
+        # Auto-assign doctor
+        doctor = assign_doctor_by_specialization(specialization)
+
+        if not doctor:
+            return Response(
+                {"error": "No doctor available for this specialization"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not nurse:
+            return Response(
+                {"error": "No nurse available at this time"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        appointment = serializer.save(
+            doctor=doctor,
+            nurse=nurse
+        )
+
+        # Send notifications to doctor + nurse + patient
+        send_appointment_notification(appointment)
+
+        return Response(AppointmentSerializer(appointment).data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 def perform_create(self, serializer):
     nurse = serializer.validated_data.get("nurse")
     appointment_date = serializer.validated_data["appointment_date"]

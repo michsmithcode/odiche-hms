@@ -29,6 +29,7 @@ urlpatterns = [
     # path('api/mainadmin/', include("mainadmin.urls")),
     path('api/permissions/', include("permissions.urls")),
     #path("api/", include("shift_mgt.urls")),
+    path('api/medical/', include("medical.urls")),
 
 
     

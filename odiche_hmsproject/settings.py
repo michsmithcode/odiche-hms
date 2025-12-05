@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'utilsapp',
     'rest_framework_simplejwt',
     'drf_spectacular',
+    'medical',
 ]
     
 

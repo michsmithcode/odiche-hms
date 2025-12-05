@@ -23,6 +23,12 @@ class PatientProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.reg_no}"
     
+    def __str__(self):
+        u = self.user
+        full_name = f"{u.first_name} {u.surname or ''} {u.last_name}".strip()
+        return f"{full_name} - {self.reg_no}"
+    
+    
+     # def __str__(self):
+    #     return f"{self.first_name} {self.last_name} - {self.reg_no}"

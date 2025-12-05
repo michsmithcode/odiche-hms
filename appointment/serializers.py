@@ -1,30 +1,30 @@
-from rest_framework import serializers
-from .models import Appointment
+# from rest_framework import serializers
+# from .models import Appointment
 
 
-class AppointmentSerializer(serializers.ModelSerializer):
-    # This Returns the model’s __str__() output, from either Doctor, Patient, or Nurse
-    doctor_display = serializers.CharField(source="doctor.__str__", read_only=True)
-    patient_display = serializers.CharField(source="patient.__str__", read_only=True)
-    nurse_display = serializers.CharField(source="nurse.__str__", read_only=True)
+# class AppointmentSerializer(serializers.ModelSerializer):
+#     # This Returns the model’s __str__() output, from either Doctor, Patient, or Nurse
+#     doctor_display = serializers.CharField(source="doctor.__str__", read_only=True)
+#     patient_display = serializers.CharField(source="patient.__str__", read_only=True)
+#     nurse_display = serializers.CharField(source="nurse.__str__", read_only=True)
 
-    class Meta:
-        model = Appointment
-        fields = [
-            "id",
-            "doctor", "doctor_display",
-            "patient", "patient_display",
-            "nurse", "nurse_display",
-            "appointment_date",
-            "status",
-            "created_at",
-        ]
-        read_only_fields = [
-            "created_at",
-            "doctor_display",
-            "patient_display",
-            "nurse_display",
-        ]
+#     class Meta:
+#         model = Appointment
+#         fields = [
+#             "id",
+#             "doctor", "doctor_display",
+#             "patient", "patient_display",
+#             "nurse", "nurse_display",
+#             "appointment_date",
+#             "status",
+#             "created_at",
+#         ]
+#         read_only_fields = [
+#             "created_at",
+#             "doctor_display",
+#             "patient_display",
+#             "nurse_display",
+#         ]
 
 
 
