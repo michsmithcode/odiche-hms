@@ -5,7 +5,7 @@ import logging
 
 @shared_task
 def send_user_otp_email(email, first_name, otp_code,time): 
-    email_sender_obj = EmailSender("You're Invited to Join Our Pharmacy on PharmaApp")
+    email_sender_obj = EmailSender("You're Invited to Join Our Pharmacy on odicheapp")
     try:
         email_sender_obj.send_otp_email(email, first_name, otp_code,time)
         return f" Email Sent successfully to {email}"

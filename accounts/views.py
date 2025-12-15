@@ -136,7 +136,7 @@ def invite_user(request):
         # Generate OTP and send verification email asynchronously
        
         otp = generate_otp(user.email)
-        send_user_otp_email.delay_on_commit(email=user.email,first_name=user.first_name, otp_code=otp,time=1200)
+        send_user_otp_email.delay_on_commit(email=user.email,first_name=user.first_name, otp_code=otp,time=2400)
         
         return Response(
             {

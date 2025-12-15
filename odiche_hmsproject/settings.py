@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'utilsapp',
     'rest_framework_simplejwt',
     'drf_spectacular',
+    'appointment',
     'medical',
 ]
     
@@ -135,7 +136,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+
+#TIME_ZONE = 'UTC'
+#Switching time Zone to WAT(West African Time) isntead of UTC
+TIME_ZONE = "Africa/Lagos"
 
 USE_I18N = True
 

@@ -2,12 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # ============================
-    # Appointment CRUD
-    # ============================
     
     # List all appointments
-    path('', views.list_appointments, name='appointments-list'),
+    path('list/', views.list_appointments, name='appointment-list'),
     
     # Retrieve a single appointment
     path('<uuid:pk>/', views.appointment_detail, name='appointment-detail'),

@@ -65,7 +65,8 @@ class Shift(models.Model):
 
     class Meta:
         ordering = ["date", "start_time"]
-        unique_together = ("user", "date", "start_time", "end_time")
+        
+        #unique_together = ("user", "date", "start_time", "end_time") #Already handles in the serializer
 
     def __str__(self):
         full_name = f"{self.user.first_name} {self.user.last_name}".strip()
@@ -77,17 +78,8 @@ class Shift(models.Model):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+#required fields 
+#user, role, date, start_time, end_time, Shift_type,
 
 
 

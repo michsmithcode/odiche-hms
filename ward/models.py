@@ -6,5 +6,5 @@ class Ward(models.Model):
     capacity = models.PositiveIntegerField()
     location = models.CharField(max_length=100, blank=True, null=True)
 
-    def _str_(self):
+    def __str__(self):
         return self.name

@@ -1,4 +1,3 @@
-# permissions/decorators.py
 from functools import wraps
 from rest_framework.response import Response
 from rest_framework import status
@@ -44,7 +43,7 @@ def role_required(*roles):
             except:
                 user_role = None
 
-            # Convert role instance to string if needed
+            # Converting role instance to string 
             if hasattr(user_role, "name"):
                 user_role = user_role.name
 

@@ -1,196 +1,210 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import Appointment
 from .serializers import AppointmentSerializer
-from doctors.models import DoctorProfile
 from patients.models import PatientProfile
-from nurses.models import NurseProfile
+from django.db.models import Q
+from django.utils.timezone import localtime
+
+from datetime import time
 
 
-
-#auto assign
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import AppointmentSerializer
-from .models import Appointment
-from nurses.utils import get_available_nurse_for_datetime
-from doctors.utils import assign_doctor_by_specialization
-from notifications.utils import send_appointment_notification
+"""
+testing
+ "paitient": "patient-reg_no-REG/2025/24332",
+    "appointment_date": "2025-12-15T10:30",
+    appointment_time
+"""
 
 
 @api_view(["POST"])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def create_appointment(request):
+    """
+    Doctor books appointment for a patient.
+    Uses doctor's shift (single-day: date, start_time, end_time).
+    """
+
+    # Ensure logged-in user is a doctor
+    doctor = getattr(request.user, "doctor_profile", None)
+    if not doctor:
+        return Response({"error": "Only doctors can create appointments."}, status=403)
+
+    # Validate data
     serializer = AppointmentSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=400)
 
-    if serializer.is_valid():
-
-        appointment_date = serializer.validated_data["appointment_date"]
-        specialization = serializer.validated_data.get("specialization")
-
-        # Auto-assign nurse
-        nurse = get_available_nurse_for_datetime(appointment_date)
-
-        # Auto-assign doctor
-        doctor = assign_doctor_by_specialization(specialization)
-
-        if not doctor:
-            return Response(
-                {"error": "No doctor available for this specialization"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if not nurse:
-            return Response(
-                {"error": "No nurse available at this time"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        appointment = serializer.save(
-            doctor=doctor,
-            nurse=nurse
-        )
-
-        # Send notifications to doctor + nurse + patient
-        send_appointment_notification(appointment)
-
-        return Response(AppointmentSerializer(appointment).data, status=status.HTTP_201_CREATED)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-def perform_create(self, serializer):
-    nurse = serializer.validated_data.get("nurse")
+    patient = serializer.validated_data["patient"]
     appointment_date = serializer.validated_data["appointment_date"]
 
-    if nurse is None:
-        nurse = get_available_nurse_for_datetime(appointment_date)
-        if nurse is None:
-            raise ValidationError("No nurse available.")
+    # Convert to local timezone
+    local_appt = localtime(appointment_date)
+    appt_day = local_appt.date()
+    appt_time = local_appt.time()
 
-    serializer.save(nurse=nurse)
+    # Import Shift dynamically
+    from shift_mgt.models import Shift
+
+    # Find shifts assigned to this doctor on this date
+    doctor_shifts = Shift.objects.filter(
+        user=doctor.user,
+        date=appt_day
+    )
+
+    if not doctor_shifts.exists():
+        return Response({"error": "You have no shift assigned."}, status=400)
+    #shift = doctor_shifts.first()
+
+    # Find shift that matches the time
+    matching_shift = doctor_shifts.filter(
+        start_time__lte=appt_time,
+        end_time__gte=appt_time
+    ).first()
+
+    if not matching_shift:
+        return Response(
+            {"error": "Doctor is not available during this time."},
+            status=400
+        )
+
+    # Prevent double booking
+    if Appointment.objects.filter(
+        doctor=doctor,
+        appointment_date=appointment_date
+    ).exists():
+        return Response(
+            {"error": "You already have an appointment at this time."},
+            status=400
+        )
+
+    # Create appointment
+    appointment = Appointment.objects.create(
+        doctor=doctor,
+        patient=patient,
+        appointment_date=appointment_date
+    )
+
+    return Response(
+        {
+            "message": "Appointment created successfully",
+            "appointment": AppointmentSerializer(appointment).data
+        },
+        status=status.HTTP_201_CREATED
+    )
 
 
-
-
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-# from rest_framework import status
-# from .models import Appointment
-# from .serializers import AppointmentSerializer
-# from shift_mgt.shift_assignment import get_available_nurse_for_datetime   # your auto-assignment function
-
-
-# # ==========================================
-# # LIST + CREATE APPOINTMENTS
-# # ==========================================
-# @api_view(["GET", "POST"])
-# def appointment_list_create(request):
-#     # =============================
-#     # GET → List All Appointments
-#     # =============================
-#     if request.method == "GET":
-#         appointments = Appointment.objects.all()
-#         serializer = AppointmentSerializer(appointments, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
-#     # =============================
-#     # POST → Create Appointment
-#     # =============================
-#     if request.method == "POST":
-#         serializer = AppointmentSerializer(data=request.data)
-
-#         if serializer.is_valid():
-#             appointment_date = serializer.validated_data["appointment_date"]
-
-#             # Auto-assign nurse
-#             nurse = get_available_nurse_for_datetime(appointment_date)
-
-#             if nurse is None:
-#                 return Response(
-#                     {"error": "No nurse is available during this time slot."},
-#                     status=status.HTTP_400_BAD_REQUEST
-#                 )
-
-#             serializer.save(nurse=nurse)
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-# ===================================
-# List all appointments (Admin or Staff)
-# ===================================
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
-def list_appointments(request):
-    appointments = Appointment.objects.all()
+@permission_classes([IsAuthenticated]) 
+def doctor_view_appointments(request):
+    doctor = getattr(request.user, "doctor_profile", None)
+
+    if not doctor:
+        return Response({"error": "Only doctors can view this."}, status=403)
+
+    appointments = Appointment.objects.filter(doctor=doctor).order_by("appointment_date")
+
     serializer = AppointmentSerializer(appointments, many=True)
     return Response(serializer.data)
 
 
-# ===================================
-# Retrieve single appointment
-# ===================================
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
+def doctor_search_patients(request):
+    keyword = request.GET.get("q", "")
+
+    patients = PatientProfile.objects.filter(
+        Q(user__first_name__icontains=keyword) |
+        Q(user__last_name__icontains=keyword) |
+        Q(reg_no__icontains=keyword)
+    )
+
+    data = [
+        {
+            "id": p.id,
+            "name": f"{p.user.first_name} {p.user.last_name}",
+            "reg_no": p.reg_no,
+        }
+        for p in patients
+    ]
+
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_appointments(request):
+    appointments = Appointment.objects.all().order_by("-appointment_date")
+    serializer = AppointmentSerializer(appointments, many=True)
+    return Response(serializer.data)
+
+
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def appointment_detail(request, pk):
     try:
-        appointment = Appointment.objects.get(pk=pk)
+        appointment = Appointment.objects.get(id=pk)
     except Appointment.DoesNotExist:
-        return Response({"error": "Appointment not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Appointment not found"}, status=404)
 
     serializer = AppointmentSerializer(appointment)
     return Response(serializer.data)
 
 
-# ===================================
-# Create new appointment
-# ===================================
-@api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])
-def create_appointment(request):
-    serializer = AppointmentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# ===================================
-# Update appointment (PATCH only)
-# ===================================
-@api_view(['PATCH'])
-@permission_classes([permissions.IsAuthenticated])
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
 def update_appointment(request, pk):
     try:
-        appointment = Appointment.objects.get(pk=pk)
+        appointment = Appointment.objects.get(id=pk)
     except Appointment.DoesNotExist:
-        return Response({"error": "Appointment not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Appointment not found"}, status=404)
 
     serializer = AppointmentSerializer(appointment, data=request.data, partial=True)
+
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "message": "Appointment updated successfully",
+            "appointment": serializer.data
+        })
+
+    return Response(serializer.errors, status=400)
 
 
-# ===================================
-# Delete appointment by admin permission
-# ===================================
-@api_view(['DELETE'])
-@permission_classes([permissions.IsAdminUser])  
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_appointment_status(request, pk):
+    try:
+        appointment = Appointment.objects.get(id=pk)
+    except Appointment.DoesNotExist:
+        return Response({"error": "Appointment not found"}, status=404)
+
+    new_status = request.data.get("status")
+
+    if new_status not in ["pending", "confirmed", "completed", "cancelled"]:
+        return Response({"error": "Invalid status"}, status=400)
+
+    appointment.status = new_status
+    appointment.save()
+
+    return Response({
+        "message": f"Appointment marked as {new_status}",
+        "appointment": AppointmentSerializer(appointment).data
+    })
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
 def delete_appointment(request, pk):
     try:
-        appointment = Appointment.objects.get(pk=pk)
+        appointment = Appointment.objects.get(id=pk)
     except Appointment.DoesNotExist:
-        return Response({"error": "Appointment not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Appointment not found"}, status=404)
 
     appointment.delete()
-    return Response({"message": "Appointment deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+    return Response({"message": "Appointment deleted successfully"}, status=204)
+
