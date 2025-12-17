@@ -18,11 +18,8 @@ class ReceptionistProfile(EmployeeIDMixin, models.Model):
 
     
     address = models.TextField(blank=True, null=True)
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
     shift = models.ForeignKey(Shift,  on_delete=models.SET_NULL, blank=True, null=True)
-
     is_verified = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

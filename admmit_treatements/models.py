@@ -16,7 +16,7 @@ class Admission(models.Model):
     expected_discharge_date = models.DateField(blank=True, null=True)
     discharged_on = models.DateTimeField(blank=True, null=True)
 
-    ward = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True)
+    ward = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True, related_name="admissions")
     room_number = models.CharField(max_length=10, blank=True, null=True)
     attending_doctor = models.ForeignKey( DoctorProfile, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='patients_admitted'
@@ -26,7 +26,7 @@ class Admission(models.Model):
 
     notes = models.TextField(blank=True, null=True)
 
-    def _str_(self):
+    def __str__(self):
         return f"{self.patient} - {self.get_status_display()}"
 
     class Meta:
@@ -53,11 +53,11 @@ class Treatment(models.Model):
     description = models.TextField(help_text="Details of the treatment or procedure performed")
     notes = models.TextField(blank=True, null=True)
 
-    # optional: link medications, procedures, investigations, etc.
+    # link medications, procedures, investigations, etc.
     procedure_name = models.CharField(max_length=255, blank=True, null=True)
     medication_prescribed = models.TextField(blank=True, null=True)
 
-    def _str_(self):
+    def __str__(self):
         return f"Treatment for {self.admission.patient} on {self.date.date()}"
 
     class Meta:

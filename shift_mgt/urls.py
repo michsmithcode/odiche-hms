@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import shift_list_create, shift_detail, list_shifts
+from .import views 
 
 urlpatterns = [
-    path("shifts/", shift_list_create, name="shift-list-create"),
-    path("shifts/", list_shifts, name="shift_list"),
-    path("shifts/<uuid:shift_id>/", shift_detail, name="shift-detail"),
+    path("shifts/", views.shift_list_create, name="shift-list-create"),
+    path("shifts/", views.list_shifts, name="shift_list"),
+    path("shifts/<uuid:shift_id>/", views.shift_detail, name="shift-detail"),
 ]

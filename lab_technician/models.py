@@ -15,7 +15,7 @@ class LabTechnicianProfile(EmployeeIDMixin, models.Model):
         on_delete=models.CASCADE,
         related_name="labtechnician_profile"
     )
-    employee_id = models.CharField(max_length=50, unique=True, editable=False)
+   # employee_id = models.CharField(max_length=50, unique=True, editable=False)
     address = models.TextField(blank=True, null=True)
     qualifications = models.TextField(blank=True, null=True)
     shift = models.ForeignKey(Shift, null=True, blank=True, on_delete=models.SET_NULL)
@@ -30,5 +30,10 @@ class LabTechnicianProfile(EmployeeIDMixin, models.Model):
     #     super().save(*args, **kwargs)
 
     def __str__(self):
-        full_name = f"LabTech {self.user.first_name} {self.user.last_name}".strip()
-        return f"{full_name} ({self.user.email})"
+        user = self.user
+        full_name = f"LabTech. {user.first_name} {user.surname}".strip()
+        return f"{full_name} ({user.email})  ({self.qualifications})"
+    
+    
+    # full_name = f"LabTech {self.user.first_name} {self.user.last_name}".strip()
+        # return f"{full_name} ({self.user.email})"

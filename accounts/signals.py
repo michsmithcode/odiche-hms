@@ -7,11 +7,11 @@ from permissions.models import HospitalRole, UserProfile
 # Import role-based profile models for all existing roles
 from doctors.models import DoctorProfile
 from nurses.models import NurseProfile
-from patients.models import PatientProfile
+#from patients.models import PatientProfile
 from hospitaladmin.models import HospitalAdminProfile
 from pharmacycashiers.models import PharmacyCashierProfile
 from pharmarcist.models import PharmacistProfile
-from mainadmin.models import MainAdminProfile
+#from mainadmin.models import MainAdminProfile
 from accountant.models import AccountantProfile
 from receptionists.models import ReceptionistProfile
 from lab_technician.models import LabTechnicianProfile
@@ -64,8 +64,8 @@ def create_role_profile(sender, instance, created, **kwargs):
         case "hospital_admin":
             HospitalAdminProfile.objects.get_or_create(user=instance)
 
-        case "main_admin":
-            MainAdminProfile.objects.get_or_create(user=instance)
+        # case "main_admin":
+        #     MainAdminProfile.objects.get_or_create(user=instance)
 
         case "accountant":
             AccountantProfile.objects.get_or_create(user=instance)

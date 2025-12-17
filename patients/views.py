@@ -19,7 +19,7 @@ User = get_user_model()
 @permission_classes([IsAuthenticated])
 def register_patient(request):
     """
-    Receptionist registers a patient without OTP verification. create custom user profile, send password setup link
+    Receptionist or admin registers a patient without OTP verification. create custom user profile, send password setup link
     Each patient's card number generated via Utilsfile, is a patient unique No for easily identification while folder 
     number is for easy search by admin, recept, or any specialist authorized,
     just like Physical folder in the hospital shelves , Helps the records office locate the patient's physical file

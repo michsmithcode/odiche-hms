@@ -1,27 +1,11 @@
-# from django.db import models
-# from django.conf import settings
-
-# class Pharmacist(models.Model):
-#     user = models.OneToOneField(settings.AUTH_USER_MODEL,
-#         on_delete=models.CASCADE,
-#         primary_key=True, 
-#         related_name="pharmacist_profile"
-#     )
-
-#     license_number = models.CharField(max_length=100, unique=True)
-#     years_of_experience = models.PositiveIntegerField(default=0)
-#     qualifications = models.TextField(blank=True, null=True)
-#     is_verified = models.BooleanField(default=False)
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return f"Pharmacist {self.user.first_name} {self.user.last_name}"
-
-
 from django.db import models
 from django.conf import settings
 from shift_mgt.models import Shift
 #from accounts.employee_id import generate_employee_id
+    
+from django.db import models
+from patients.models import PatientProfile
+
 from accounts.mixins import EmployeeIDMixin
 
 class PharmacistProfile(EmployeeIDMixin, models.Model):
@@ -33,7 +17,7 @@ class PharmacistProfile(EmployeeIDMixin, models.Model):
         primary_key=True
     )
     
-    employee_id = models.CharField(max_length=50, unique=True, editable=False)
+    #employee_id = models.CharField(max_length=50, unique=True, editable=False)
     years_of_experience = models.PositiveIntegerField(default=0)
     address = models.CharField(max_length=255, blank=True, null=True)
     shift = models.ForeignKey(Shift, max_length=50, on_delete=models.SET_NULL, blank=True, null=True)
@@ -53,16 +37,8 @@ class PharmacistProfile(EmployeeIDMixin, models.Model):
         full_name = f"Pharmacist {user.first_name} {user.surname} {user.last_name}".strip()
         return f"{full_name} ({user.email})"
     
+
     
-    
-    # def __str__(self):
-    #     return f"Pharmacist: {self.user.get_full_name() or self.user.email}"
-    
-    
-    
-    # pharmacy/models.py
-from django.db import models
-from patients.models import PatientProfile
 
 #patient's Prescriptions
 class Prescription(models.Model):

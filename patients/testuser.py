@@ -1,29 +1,32 @@
 """
+   {
     "message": "Patient registered successfully",
     "Notice": "A password-reset link has been emailed to this patient",
-    "password_setup_link_for_postman_testing": "http://localhost:3000/reset-password/OTQwM2ZlYzctODJmZS00YzJmLTliYzItZTkxNmIzMmRlYWM2/d0ahtg-57edaebb38dc83b03b61593012ba2450/",
+    "password_setup_link_for_postman_testing": "http://localhost:3000/reset-password/OTBiYzUzZTEtZjc2ZC00NjhhLWJkYWUtMWQ1NGU2ZmE4ODQ2/d0yncu-fcf40d81202606fda8cd6a435f69a3a2/",
     "user": {
-        "email": "example14@gmail.com",
-        "name": "John None Doe",
+        "email": "testpatient@gmail.com",
+        "name": "testpatient None testpatient",
         "role": "patient"
     },
     "profile": {
-        "id": 4,
-        "user_name": "John None Doe",
-        "first_name": "John",
-        "last_name": "Doe",
+        "id": 1,
+        "user_name": "testpatient None testpatient",
+        "first_name": "testpatient",
+        "last_name": "testpatient",
         "role": "patient",
-        "email": "example14@gmail.com",
-        "reg_no": "REG/2025/24332",
-        "card_no": "REG/2025/24332",
-        "file_folder_no": "FOLDER-323599",
-        "date_of_birth": "2025-04-12",
-        "emergency_contact_name": "Mary",
-        "emergency_contact_number": "09010101010",
-        "address": "Lekki Phase 1",
+        "email": "testpatient@gmail.com",
+        "reg_no": "REG/2025/15116",
+        "card_no": "REG/2025/15116",
+        "file_folder_no": "FOLDER-224295",
+        "date_of_birth": "1990-12-02",
+        "emergency_contact_name": "testpatient2",
+        "emergency_contact_number": "09010101011",
+        "address": "No1 Nichalas Street Aba",
         "is_verified": false,
-        "created_at": "2025-12-04T13:05:40.351316Z",
-        "updated_at": "2025-12-04T13:05:40.351316Z"
+        "created_at": "2025-12-17T15:07:41.981916+01:00",
+        "updated_at": "2025-12-17T15:07:41.981916+01:00"
+    }
+}
     }
     
     """
