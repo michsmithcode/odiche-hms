@@ -26,7 +26,7 @@ def admit_patient(request):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def list_admissions(request):
+def list_patient_admissions(request):
     queryset = Admission.objects.all()
 
     status_param = request.GET.get("status")
@@ -43,6 +43,33 @@ def list_admissions(request):
     serializer = AdmissionSerializer(queryset, many=True)
     return Response(serializer.data)
 
+
+@api_view(["GET"])
+def admission_detail(request, pk):
+    try:
+        admission = Admission.objects.get(pk=pk)
+    except Admission.DoesNotExist:
+        return Response({"error": "Admission not found"}, status=404)
+
+    serializer = AdmissionSerializer(admission)
+    return Response(serializer.data)
+
+@api_view(["PATCH"])
+def update_admission(request, pk):
+    try:
+        admission = Admission.objects.get(pk=pk)
+    except Admission.DoesNotExist:
+        return Response({"error": "Admission not found"}, status=404)
+
+    serializer = AdmissionSerializer(admission, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=400)
+
+
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def discharge_patient(request, admission_id):
@@ -50,19 +77,45 @@ def discharge_patient(request, admission_id):
         admission = Admission.objects.get(id=admission_id)
     except Admission.DoesNotExist:
         return Response({"error": "Admission not found"}, status=404)
+    
+    if admission.status == "discharged":
+        return Response({"message": "Already discharged"})
 
     admission.status = "discharged"
     admission.discharged_on = timezone.now()
+    
+    if admission.bed:
+        admission.bed.is_occupied = False
+        admission.bed.save()
+        
     admission.save()
-
+    
     return Response({
-        "message": "Patient discharged successfully",
+        "message": "Patient discharged and bed released successfully",
         "admission": AdmissionSerializer(admission).data
     })
 
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def add_treatment(request):
+def administer_treatment(request):
+    doctor = getattr(request.user, "doctor_profile", None)
+    if not doctor:
+        return Response({"error": "Only doctors can administer treatment."}, status=403)
+    
+    admission_id = request.data.get("admission")
+
+    try:
+        admission = Admission.objects.get(id=admission_id)
+    except Admission.DoesNotExist:
+        return Response({"error": "Invalid admission"}, status=400)
+
+    if admission.status != "admitted":
+        return Response(
+            {"error": "Cannot add treatment after discharge"},
+            status=403
+        )
+
     serializer = TreatmentSerializer(data=request.data)
     if serializer.is_valid():
         treatment = serializer.save(doctor=request.user)
@@ -81,3 +134,17 @@ def list_treatments(request, admission_id):
     treatments = Treatment.objects.filter(admission_id=admission_id)
     serializer = TreatmentSerializer(treatments, many=True)
     return Response(serializer.data)
+
+
+@api_view(["PATCH"])
+def update_treatment(request, pk):
+    try:
+        treatment = Treatment.objects.get(pk=pk)
+    except Treatment.DoesNotExist:
+        return Response({"error": "Treatment not found"}, status=404)
+
+    serializer = TreatmentSerializer(treatment, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=400)

@@ -1,7 +1,7 @@
 from django.db import models
 from patients.models import PatientProfile
 from doctors.models import DoctorProfile
-from ward.models import Ward
+from ward.models import Ward, Bed
 from django.conf import settings
 
 class Admission(models.Model):
@@ -15,6 +15,13 @@ class Admission(models.Model):
     admitted_on = models.DateTimeField(auto_now_add=True)
     expected_discharge_date = models.DateField(blank=True, null=True)
     discharged_on = models.DateTimeField(blank=True, null=True)
+    bed = models.ForeignKey(
+        Bed,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="admissions"
+    )
 
     ward = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True, related_name="admissions")
     room_number = models.CharField(max_length=10, blank=True, null=True)

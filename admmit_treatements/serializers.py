@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Admission, Treatment
-
+from ward.models import Bed
 
 class AdmissionSerializer(serializers.ModelSerializer):
     patient_display = serializers.SerializerMethodField(read_only=True)
@@ -19,13 +19,14 @@ class AdmissionSerializer(serializers.ModelSerializer):
             "ward",
             "ward_name",
             "room_number",
+            "bed",
             "attending_doctor",
             "doctor_display",
             "diagnosis",
             "status",
             "notes",
         ]
-        read_only_fields = ["admitted_on", "discharged_on"]
+        read_only_fields = ["admitted_on", "discharged_on", "bed"]
 
     def get_patient_display(self, obj):
         if obj.patient:
@@ -38,11 +39,29 @@ class AdmissionSerializer(serializers.ModelSerializer):
             u = obj.attending_doctor.user
             return f"Dr. {u.last_name}"
         return None
+    
+  
+    def create(self, validated_data):
+        ward = validated_data.get("ward")
+
+        # find free bed
+        bed = Bed.objects.filter(ward=ward, is_occupied=False).first()
+        if not bed:
+            raise serializers.ValidationError("No free beds available in this ward")
+
+        #auto assig bed to patient
+        bed.is_occupied = True
+        bed.save()
+
+        admission = Admission.objects.create(bed=bed, **validated_data)
+        return admission
+
+
 
 
 class TreatmentSerializer(serializers.ModelSerializer):
     doctor_name = serializers.CharField(source="doctor.__str__", read_only=True)
-    admission_display = serializers.SerializerMethodField(read_only=True)
+    admission_display = serializers.SerializerMethodField(read_only=True) #
 
     class Meta:
         model = Treatment
