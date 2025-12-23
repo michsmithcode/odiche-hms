@@ -109,10 +109,12 @@ def administer_treatment(request):
         admission = Admission.objects.get(id=admission_id)
     except Admission.DoesNotExist:
         return Response({"error": "Invalid admission"}, status=400)
-
+    
+    
+    #Unauthorized treatment after patient's discharged
     if admission.status != "admitted":
         return Response(
-            {"error": "Cannot add treatment after discharge"},
+            {"error": "Cannot administer treatment after discharge"},
             status=403
         )
 
@@ -148,3 +150,33 @@ def update_treatment(request, pk):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=400)
+
+#Summary of patient admission
+
+@api_view(["GET"])
+def patient_admission_summary(request, pk):
+    try:
+        admission = Admission.objects.get(pk=pk)
+    except Admission.DoesNotExist:
+        return Response({"error": "Admission not found"}, status=404)
+
+    treatments = admission.treatments.all()
+
+    data = {
+        "patient": str(admission.patient),
+        "ward": admission.ward.name if admission.ward else None,
+        "bed": str(admission.bed) if admission.bed else None,
+        "doctor": str(admission.attending_doctor),
+        "diagnosis": admission.diagnosis,
+        "status": admission.status,
+        "treatments": [
+            {
+                "date": t.date,
+                "procedure": t.procedure_name,
+                "medication": t.medication_prescribed,
+                "notes": t.notes
+            }
+            for t in treatments
+        ]
+    }
+    return Response(data)

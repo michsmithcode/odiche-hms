@@ -45,7 +45,7 @@ def create_role_profile(sender, instance, created, **kwargs):
     )
 
     
-    # Auto_create profile based on user role using Case Method
+    # Auto_create profile based on user role using match Case Method
     
     match role_name.lower():
 
@@ -81,6 +81,6 @@ def create_role_profile(sender, instance, created, **kwargs):
             pass
         
         
-    #patient account created already handled by the receptionist
+    #patient account creation already handled by the receptionist
         # case "patient":
         #     PatientProfile.objects.get_or_create(user=instance)

@@ -63,7 +63,7 @@ def invite_user(request):
         # Generate OTP and send verification email asynchronously
        
         otp = generate_otp(user.email)
-        send_user_otp_email.delay_on_commit(email=user.email,first_name=user.first_name, otp_code=otp,time=2400)
+        send_user_otp_email.delay_on_commit(email=user.email,first_name=user.first_name, otp_code=otp,time=1200)
         
         return Response(
             {
@@ -191,6 +191,7 @@ def login_user(request):
     """
     User login after activation (JWT-based authentication)
     """
+    print(request.data)
     email = request.data.get("email")
     password = request.data.get("password")
 
@@ -224,7 +225,7 @@ def login_user(request):
             "refresh": str(refresh),
             "user": {
                 "email": user.email,
-                #This uses the user profile crated at the permission models 
+                #This uses the user profile created at the permission models 
                 "role": user.profile.role.name if hasattr(user, "profile") and user.profile.role else None,
                 #"role": getattr(user, "role", None),
                 "is_active": user.is_active,

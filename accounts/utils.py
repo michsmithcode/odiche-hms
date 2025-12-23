@@ -4,7 +4,7 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
 
-#This function is for sending a password reset email to a patien
+#This function is for sending a password reset email to a patient
 def send_password_reset_link(user):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = PasswordResetTokenGenerator().make_token(user)

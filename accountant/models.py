@@ -1,12 +1,9 @@
 from django.db import models
 from django.conf import settings
 from shift_mgt.models import Shift
-#from accounts.employee_id import generate_employee_id
 from accounts.mixins import EmployeeIDMixin
-
+#from transactions.models import Transaction
 from patients.models import PatientProfile
-#from django.utils import timezone
-#import uuid
 
 
 class AccountantProfile(EmployeeIDMixin, models.Model):
@@ -18,30 +15,29 @@ class AccountantProfile(EmployeeIDMixin, models.Model):
         related_name="accountant_profile"
     )
 
-    #employee_id = models.CharField(max_length=50, unique=True, editable=False)
+    
     address = models.TextField(blank=True, null=True)
     qualifications = models.TextField(blank=True, null=True)
-
-    shift = models.OneToOneField(
-        Shift,
-        max_length=50,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL
-    )
-
+    years_of_experience = models.BigIntegerField(default=0)
+    bio = models.TextField(blank=True, null=True)
+    shift = models.OneToOneField(Shift,max_length=50, on_delete=models.SET_NULL, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    
+    #Confirmation of profile completion
+    @property
+    def is_profile_complete(self):
+        required_fields = [
+            self.address,
+            self.qualifications,
+            self.phone_number,
+        ]
+        return all(required_fields)
+    
 
-#NOT USED
-    # Auto-generate Accountant employee ID
-    # def save(self, *args, **kwargs):
-    #     if not self.employee_id:
-    #         # ACC prefix for accountants
-    #         self.employee_id = generate_employee_id("ACC", self.user.id)
-    #     super().save(*args, **kwargs)
+
 
 
     def __str__(self):
@@ -50,3 +46,12 @@ class AccountantProfile(EmployeeIDMixin, models.Model):
         return f"{full_name} ({user.email})"
 
 
+#from accounts.employee_id import generate_employee_id
+#employee_id = models.CharField(max_length=50, unique=True, editable=False)
+#NOT USED
+    # Auto-generate Accountant employee ID
+    # def save(self, *args, **kwargs):
+    #     if not self.employee_id:
+    #         # ACC prefix for accountants
+    #         self.employee_id = generate_employee_id("ACC", self.user.id)
+    #     super().save(*args, **kwargs)

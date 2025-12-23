@@ -2,10 +2,8 @@ from django.db import models
 from django.conf import settings
 from shift_mgt.models import Shift
 #from accounts.employee_id import generate_employee_id
-    
 from django.db import models
 from patients.models import PatientProfile
-
 from accounts.mixins import EmployeeIDMixin
 
 class PharmacistProfile(EmployeeIDMixin, models.Model):
@@ -25,11 +23,15 @@ class PharmacistProfile(EmployeeIDMixin, models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     
-    #NOT USED
-    # def save(self, *args, **kwargs):
-    #     if not self.employee_id:
-    #         self.employee_id = generate_employee_id("PHARM", self.user.id)
-    #     super().save(*args, **kwargs)
+    #comfirmation of profile completion
+    @property
+    def is_profile_complete(self):
+        required_fields = [
+            self.address,
+            self.qualifications,
+            self.phone_number,
+        ]
+        return all(required_fields)
     
     
     def __str__(self):
@@ -52,3 +54,11 @@ class Prescription(models.Model):
     def __str__(self):
         return f"Prescription for {self.patient.first_name} {self.patient.last_name}"
 
+
+  #NOT USED
+    # def save(self, *args, **kwargs):
+    #     if not self.employee_id:
+    #         self.employee_id = generate_employee_id("PHARM", self.user.id)
+    #     super().save(*args, **kwargs)
+    
+    

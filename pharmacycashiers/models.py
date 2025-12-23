@@ -23,6 +23,24 @@ class PharmacyCashierProfile(EmployeeIDMixin, models.Model):
     can_verify_prescriptions = models.BooleanField(default=True)
     
     
+    #comfirmation of profile completion
+    @property
+    def is_profile_complete(self):
+        required_fields = [
+            self.address,
+            self.qualifications,
+            self.phone_number,
+        ]
+        return all(required_fields)
+    
+    
+
+    
+    def __str__(self):
+        user = self.user
+        full_name = f"PharmacyCashier {user.first_name} {user.surname} {user.last_name}".strip()
+        return f"{full_name} ({user.email})"
+
     #NOT USED
     # def save(self, *args, **kwargs):
     #     if not self.employee_id:
@@ -30,9 +48,3 @@ class PharmacyCashierProfile(EmployeeIDMixin, models.Model):
     #     super().save(*args, **kwargs)
     
     #profile_picture = models.ImageField
-    
-    def __str__(self):
-        user = self.user
-        full_name = f"PharmacyCashier {user.first_name} {user.surname} {user.last_name}".strip()
-        return f"{full_name} ({user.email})"
-

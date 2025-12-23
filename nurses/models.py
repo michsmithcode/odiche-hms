@@ -20,6 +20,7 @@ class NurseProfile(EmployeeIDMixin, models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    #Confirmation of profile completion
     @property
     def is_profile_complete(self):
         required_fields = [

@@ -12,9 +12,9 @@ class HospitalAdminProfile(EmployeeIDMixin, models.Model):
     )
     # office_number = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
-    years_of_experience = models.PositiveIntegerField(default=0)
+    years_of_experience = models.PositiveIntegerField(default=0)#Not migrated
     qualifications = models.TextField(blank=True, null=True)
-    bio = models.TextField(blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)#Not migrated
     is_verified = models.BooleanField(default=True) 
     created_at = models.DateTimeField(auto_now_add=True)
     

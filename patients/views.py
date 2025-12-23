@@ -28,7 +28,7 @@ def register_patient(request):
     email = request.data.get("email")
     if User.objects.filter(email=request.data.get("email")).exists():
         return Response(
-        {"error": "A user with this email already exists."},
+        {"error": "A patient with this email already exists."},
         status=status.HTTP_400_BAD_REQUEST
     )
     # Create the user
