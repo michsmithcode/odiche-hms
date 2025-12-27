@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'appointment',
     'medical',
     'lab',
+    'transactions',
 ]
     
 
@@ -221,17 +222,7 @@ CACHES = {
     }
 }
 
-# OTP:904611 for  example@gmail.com
-#admin details;
-#admin@gmail.com: password:admin
 
-# { For testing details 
-#   "email": "example@gmail.com",
-#   "first_name": "udoka",
-#   "last_name": "ubong",
-#   "role": "doctor",
-#   "state": "Abia"
-# }
 #use this command to start celery;
 
 # celery -A odiche_hmsproject worker -l info

@@ -15,22 +15,12 @@ class Admission(models.Model):
     admitted_on = models.DateTimeField(auto_now_add=True)
     expected_discharge_date = models.DateField(blank=True, null=True)
     discharged_on = models.DateTimeField(blank=True, null=True)
-    bed = models.ForeignKey(
-        Bed,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="admissions"
-    )
-
+    bed = models.ForeignKey(Bed, on_delete=models.SET_NULL, null=True, blank=True, related_name="admissions")
     ward = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True, related_name="admissions")
     room_number = models.CharField(max_length=10, blank=True, null=True)
-    attending_doctor = models.ForeignKey( DoctorProfile, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='patients_admitted'
-    )
+    attending_doctor = models.ForeignKey( DoctorProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='patients_admitted')
     diagnosis = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='admitted')
-
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -50,8 +40,7 @@ class Treatment(models.Model):
         related_name='treatments'
     )
     date = models.DateTimeField(auto_now_add=True)
-    doctor = models.ForeignKey(
-        settings.AUTH_USER_MODEL, #recheck
+    doctor = models.ForeignKey(settings.AUTH_USER_MODEL, #recheck
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
